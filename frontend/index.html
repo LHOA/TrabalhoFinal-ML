@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMAPSS Turbofan - Preditor de Falhas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+                    <circle cx="24" cy="24" r="22" stroke="#f0702e" stroke-width="2.5" fill="#1a1a2e"/>
+                    <path d="M24 8 C28 16 36 20 36 24 C36 28 28 32 24 40 C20 32 12 28 12 24 C12 20 20 16 24 8Z" fill="#f0702e" opacity="0.25"/>
+                    <circle cx="24" cy="24" r="5" fill="#f0702e"/>
+                    <path d="M24 15 L25.5 22 L32 22 L26.5 26 L28.5 33 L24 28 L19.5 33 L21.5 26 L16 22 L22.5 22Z" fill="#f0702e" opacity="0.5"/>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>CMAPSS Turbofan</h1>
+                <p class="subtitle">Preditor de Falhas Iminentes</p>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>Classificador de Falhas em Motores Turbofan</h2>
+            <p>
+                Este sistema utiliza aprendizado de máquina (XGBoost) para classificar o estado operacional
+                de motores turbofan com base no dataset NASA CMAPSS. Insira os <strong>6 parâmetros principais</strong>
+                do motor para determinar se ele opera normalmente ou apresenta falha iminente.
+            </p>
+        </section>
+
+        <form id="predict-form">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📡</span>
+                    <h3>Parâmetros do Motor</h3>
+                </div>
+                <div class="card-body">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="temp_turbina_c">
+                                Temperatura da Turbina (°C)
+                                <span class="range-hint">1380 – 1445</span>
+                            </label>
+                            <input type="number" step="any" id="temp_turbina_c"
+                                   name="temp_turbina_c" value="1408.93"
+                                   min="1380" max="1445" required
+                                   placeholder="ex: 1408.93">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="pressao_compressor_psi">
+                                Pressão do Compressor (psi)
+                                <span class="range-hint">549 – 557</span>
+                            </label>
+                            <input type="number" step="any" id="pressao_compressor_psi"
+                                   name="pressao_compressor_psi" value="553.37"
+                                   min="549" max="557" required
+                                   placeholder="ex: 553.37">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="pressao_estatica_psi">
+                                Pressão Estática Saída (psi)
+                                <span class="range-hint">46,5 – 49</span>
+                            </label>
+                            <input type="number" step="any" id="pressao_estatica_psi"
+                                   name="pressao_estatica_psi" value="47.54"
+                                   min="46.5" max="49" required
+                                   placeholder="ex: 47.54">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="vazao_combustivel">
+                                Vazão de Combustível
+                                <span class="range-hint">518 – 524</span>
+                            </label>
+                            <input type="number" step="any" id="vazao_combustivel"
+                                   name="vazao_combustivel" value="521.41"
+                                   min="518" max="524" required
+                                   placeholder="ex: 521.41">
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="razao_bypass">
+                                Razão de Bypass
+                                <span class="range-hint">8,30 – 8,60</span>
+                            </label>
+                            <input type="number" step="0.01" id="razao_bypass"
+                                   name="razao_bypass" value="8.44"
+                                   min="8.3" max="8.6" required
+                                   placeholder="ex: 8.44">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="temp_mancal_c">
+                                Temperatura do Mancal (°C)
+                                <span class="range-hint">22,8 – 23,7</span>
+                            </label>
+                            <input type="number" step="0.01" id="temp_mancal_c"
+                                   name="temp_mancal_c" value="23.29"
+                                   min="22.8" max="23.7" required
+                                   placeholder="ex: 23.29">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" id="btn-analyze">
+                    <span class="spinner" style="display:none;"></span>
+                    <span class="btn-text">Analisar Motor</span>
+                </button>
+                <button type="button" id="btn-reset" class="btn-secondary">Novo Diagnóstico</button>
+            </div>
+        </form>
+
+        <!-- Result Area -->
+        <div id="result-area" class="result-area" style="display:none;">
+            <div id="result-card" class="result-card">
+                <div class="result-icon" id="result-icon"></div>
+                <div class="result-content">
+                    <h3 id="result-title"></h3>
+                    <p id="result-message"></p>
+                    <div class="result-probability">
+                        <span class="prob-label">Probabilidade de falha:</span>
+                        <strong class="prob-value" id="result-probability"></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="result-actions">
+                <button type="button" id="btn-new-diagnosis" class="btn-secondary">Novo Diagnóstico</button>
+            </div>
+        </div>
+
+        <!-- Error Area -->
+        <div id="error-area" class="error-area" style="display:none;">
+            <p id="error-message"></p>
+        </div>
+    </main>
+
+    <footer>
+        <p>
+            <strong>CMAPSS Turbofan — Preditor de Falhas</strong> &mdash;
+            Projeto acadêmico baseado no dataset NASA CMAPSS (Commercial Modular Aero-Propulsion System Simulation).
+        </p>
+        <p class="footer-meta">
+            Especialização em Machine Learning &mdash; Classificador XGBoost com 95,9% de acurácia &mdash; 2025
+        </p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

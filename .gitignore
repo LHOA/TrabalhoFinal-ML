@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv_projeto/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp scripts
+gerar_notebook.py
+gerar_relatorio.py
+add_rf_model.py
+treinar_modelo.py
+test_bullet.pdf

@@ -1,0 +1,2 @@
+Modelo,Acurácia,Precisão,Recall,F1-Score,AUC-ROC
+XGBoost (6 sensores),0.9363,0.7309,0.9113,0.8112,0.9818

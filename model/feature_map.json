@@ -1,0 +1,26 @@
+{
+  "sensor_04": {
+    "nome_amigavel": "temp_turbina_c",
+    "importancia": 0.2428
+  },
+  "sensor_07": {
+    "nome_amigavel": "pressao_compressor_psi",
+    "importancia": 0.0533
+  },
+  "sensor_11": {
+    "nome_amigavel": "pressao_estatica_psi",
+    "importancia": 0.5227
+  },
+  "sensor_12": {
+    "nome_amigavel": "vazao_combustivel",
+    "importancia": 0.0617
+  },
+  "sensor_15": {
+    "nome_amigavel": "razao_bypass",
+    "importancia": 0.0587
+  },
+  "sensor_21": {
+    "nome_amigavel": "temp_mancal_c",
+    "importancia": 0.0609
+  }
+}

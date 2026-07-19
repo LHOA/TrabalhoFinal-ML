@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analisador de Motores - CMAPSS</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0f0c29, #1a1a4e, #24243e);
+  min-height: 100vh;
+  color: #e0e0e0;
+  padding: 20px;
+}
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.header {
+  text-align: center;
+  padding: 30px 20px;
+}
+.header h1 { font-size: 1.8em; color: #fff; margin-bottom: 5px; }
+.header p { color: #aaa; font-size: 0.95em; }
+.card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card h3 {
+  font-size: 1em;
+  color: #e94560;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.input-group {
+  margin-bottom: 14px;
+}
+.input-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+.input-group label span { color: #e94560; font-weight: bold; }
+.input-group input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+}
+.input-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e94560;
+  cursor: pointer;
+}
+.valor-slider {
+  display: inline-block;
+  min-width: 100px;
+  text-align: right;
+  font-family: monospace;
+  font-size: 0.95em;
+  color: #e94560;
+}
+.btn {
+  width: 100%;
+  padding: 16px;
+  background: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn:hover:not(:disabled) { background: #ff6b81; transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn .spinner { display: none; }
+.btn.loading .spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.result-area {
+  display: none;
+  margin-top: 16px;
+}
+.result-card {
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.result-card.success { background: rgba(46,204,113,0.15); border: 1px solid #2ecc71; }
+.result-card.failure { background: rgba(231,76,60,0.15); border: 1px solid #e74c3c; }
+.result-icon { font-size: 3em; margin-bottom: 8px; }
+.result-title { font-size: 1.4em; font-weight: bold; margin-bottom: 4px; }
+.result-card.success .result-title { color: #2ecc71; }
+.result-card.failure .result-title { color: #e74c3c; }
+.result-prob { font-size: 0.95em; color: #aaa; margin-bottom: 8px; }
+.result-prob strong { color: #fff; font-size: 1.4em; }
+.result-msg { font-size: 0.95em; color: #ccc; }
+.error-area {
+  display: none;
+  background: rgba(231,76,60,0.1);
+  border: 1px solid #e74c3c;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  color: #e74c3c;
+  text-align: center;
+}
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #555;
+  font-size: 0.8em;
+}
+.desc-sensores {
+  font-size: 0.85em;
+  color: #888;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🔧 Analisador de Motores</h1>
+    <p>Classificação de Falhas Iminentes — CMAPSS (NASA)</p>
+    <p style="font-size:0.85em; color:#666; margin-top:4px;">Ajuste os sensores e clique em "Analisar"</p>
+  </div>
+
+  <div class="card">
+    <h3>📊 Sensores do Motor</h3>
+    <div class="desc-sensores">
+      Apenas <strong>6 parâmetros</strong> são necessários. Os sensores abaixo são os mais relevantes 
+      para detectar falhas (95,9% de acurácia). Ajuste os sliders com valores típicos do dataset.
+    </div>
+
+    <div class="input-group">
+      <label>Sensor Térmico 1 <span id="val-sensor_11">518.67</span></label>
+      <input type="range" id="sensor_11" min="450" max="650" step="0.1" value="518.67">
+    </div>
+    <div class="input-group">
+      <label>Sensor de Pressão 1 <span id="val-sensor_04">1400.60</span></label>
+      <input type="range" id="sensor_04" min="1200" max="1600" step="0.1" value="1400.60">
+    </div>
+    <div class="input-group">
+      <label>Sensor Térmico 2 <span id="val-sensor_09">9046.19</span></label>
+      <input type="range" id="sensor_09" min="8500" max="10000" step="0.1" value="9046.19">
+    </div>
+    <div class="input-group">
+      <label>Sensor de Vibração <span id="val-sensor_12">521.66</span></label>
+      <input type="range" id="sensor_12" min="400" max="650" step="0.1" value="521.66">
+    </div>
+    <div class="input-group">
+      <label>Sensor de Pressão 2 <span id="val-sensor_14">8138.62</span></label>
+      <input type="range" id="sensor_14" min="7500" max="8800" step="0.1" value="8138.62">
+    </div>
+    <div class="input-group">
+      <label>Modo Operacional <span id="val-op_setting_2">-0.0004</span></label>
+      <input type="range" id="op_setting_2" min="-1" max="1" step="0.0001" value="-0.0004">
+    </div>
+
+    <button class="btn" id="btn-analyze" onclick="analisar()">
+      <span class="spinner"></span>
+      <span class="btn-text">🔍 Analisar Motor</span>
+    </button>
+
+    <div id="result-area" class="result-area">
+      <div id="result-card" class="result-card">
+        <div class="result-icon" id="result-icon"></div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-prob">Probabilidade de falha: <strong id="result-prob">0%</strong></div>
+        <div class="result-msg" id="result-msg"></div>
+      </div>
+    </div>
+    <div id="error-area" class="error-area">
+      <p id="error-msg"></p>
+    </div>
+  </div>
+
+  <div class="footer">
+    Projeto Final — Machine Learning | CMAPSS NASA Turbofan
+  </div>
+</div>
+
+<script>
+// Atualizar valores dos sliders em tempo real
+['sensor_11','sensor_04','sensor_09','sensor_12','sensor_14','op_setting_2'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    document.getElementById('val-' + id).textContent = parseFloat(el.value).toFixed(4);
+  });
+});
+
+async function analisar() {
+  const btn = document.getElementById('btn-analyze');
+  const resultArea = document.getElementById('result-area');
+  const errorArea = document.getElementById('error-area');
+  
+  resultArea.style.display = 'none';
+  errorArea.style.display = 'none';
+  
+  btn.classList.add('loading');
+  btn.disabled = true;
+  
+  const dados = {};
+  ['sensor_11','sensor_04','sensor_09','sensor_12','sensor_14','op_setting_2'].forEach(id => {
+    dados[id] = parseFloat(document.getElementById(id).value);
+  });
+  
+  try {
+    const resp = await fetch('http://localhost:8000/predict-simple', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+    
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || 'Erro do servidor');
+    }
+    
+    const result = await resp.json();
+    const isFalha = result.classe === 1;
+    const prob = (result.probabilidade_falha * 100).toFixed(2);
+    
+    const card = document.getElementById('result-card');
+    card.className = 'result-card ' + (isFalha ? 'failure' : 'success');
+    document.getElementById('result-icon').textContent = isFalha ? '⚠️' : '✅';
+    document.getElementById('result-title').textContent = isFalha ? 'FALHA IMINENTE' : 'OPERACIONAL NORMAL';
+    document.getElementById('result-title').style.color = isFalha ? '#e74c3c' : '#2ecc71';
+    document.getElementById('result-prob').textContent = prob + '%';
+    document.getElementById('result-msg').textContent = result.mensagem;
+    
+    resultArea.style.display = 'block';
+    resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    errorArea.style.display = 'block';
+    document.getElementById('error-msg').textContent = 'Erro: ' + (err.message || 'API offline');
+    errorArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
