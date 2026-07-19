@@ -9,7 +9,7 @@
 **Projeto Final — Disciplina de Machine Learning**  
 Especialização em Inteligência Artificial
 
-Dataset: [NASA CMAPSS FD001](https://data.nasa.gov/Aerospace/CMAPSS-Jet-Engine-Simulated-Data/ff5v-kuh6) (Turbofan Engine Degradation Simulation)
+Dataset: [NASA CMAPSS FD001](https://data.nasa.gov/Aerospace/CMAPSS-Jet-Engine-Simulated-Data) (Turbofan Engine Degradation Simulation)
 
 ---
 
