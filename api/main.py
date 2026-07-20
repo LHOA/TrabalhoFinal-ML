@@ -35,7 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Modelo Pydantic para os dados de entrada (6 sensores) ──────────────
+# ── Modelo Pydantic para os dados de entrada (6 sensores + modelo) ──────
 class InputFeatures(BaseModel):
     temp_turbina_c: float = Field(
         ..., description="Temperatura da Turbina (1380-1440 °C)"
@@ -54,6 +54,10 @@ class InputFeatures(BaseModel):
     )
     temp_mancal_c: float = Field(
         ..., description="Temperatura do Mancal (22.9-23.6 °C)"
+    )
+    modelo: str = Field(
+        default="xgboost",
+        description="Modelo: 'xgboost' ou 'random_forest'"
     )
 
 
@@ -85,7 +89,8 @@ def predict_endpoint(features: InputFeatures):
     Recebe 6 features do motor com nomes amigáveis e retorna a classificação.
     """
     dados = features.model_dump()
-    resultado = predict(dados)
+    modelo = dados.pop("modelo", "xgboost")
+    resultado = predict(dados, modelo=modelo)
 
     if resultado.get("status") == "erro":
         raise HTTPException(status_code=400, detail=resultado["mensagem"])

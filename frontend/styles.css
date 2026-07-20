@@ -189,13 +189,47 @@ main {
 }
 
 /* --- Buttons --- */
-.button-group {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
+.model-selector {
+    text-align: center;
+    margin: 20px 0 10px;
 }
 
+.model-selector label {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+.modelo-select {
+    background: #1a1a3e;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-width: 280px;
+    transition: border-color 0.2s;
+}
+
+.modelo-select:hover,
+.modelo-select:focus {
+    border-color: #f0702e;
+    outline: none;
+}
+
+.modelo-select option {
+    background: #1a1a3e;
+    color: #fff;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
 button {
     font-family: inherit;
     cursor: pointer;

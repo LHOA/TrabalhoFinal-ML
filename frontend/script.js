@@ -179,9 +179,13 @@
         const { payload, errors } = collectData();
 
         if (errors.length > 0) {
-            showError('Por favor, corrija os erros abaixo:\n- ' + errors.join('\n- '));
+            showError('Por favor, corrija os erros abaixo:\\n- ' + errors.join('\\n- '));
             return;
         }
+
+        /* Add selected model */
+        const modeloSelect = document.getElementById('modelo-select');
+        payload.modelo = modeloSelect ? modeloSelect.value : 'xgboost';
 
         /* Set loading */
         setLoading(true);
